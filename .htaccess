@@ -1,0 +1,22 @@
+# Hostinger (Apache / LiteSpeed) setup for Ledgerlight.
+# The website files live in /public; the rest of this repo is for running it locally.
+
+DirectoryIndex index.html
+Options -Indexes
+
+RewriteEngine On
+
+# Never serve the local-only files: the database, the Python server, the launcher, git data.
+RewriteRule ^(data|\.git)(/|$) - [F,L]
+RewriteRule ^(server\.py|README\.md|\.gitignore|Start.*\.command)$ - [F,L]
+
+# Serve everything from /public, so example.com/ shows public/index.html.
+RewriteCond %{REQUEST_URI} !/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Make sure visitors get updates right away after a new deploy.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|css)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

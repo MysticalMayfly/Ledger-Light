@@ -31,7 +31,7 @@ window.LL = window.LL || {};
         ${NAV.map((g) => `<div class="nav-group"><div class="nav-label">${g.label}</div><nav class="nav">${g.items.map(([id, name, ico]) => `<a href="#${id}" data-route="${id}" title="${name}">${I(ico, 18)}<span>${name}</span>${badges[id] ? `<em class="badge ${badges[id].bad ? 'bad' : ''}">${badges[id].n}</em>` : ''}</a>`).join('')}</nav></div>`).join('')}
       </div>
       <div class="rail-foot">
-        <div class="mode-chip ${S.mode}" title="${S.mode === 'server' ? 'Saved to data/finance.db on this computer' : 'Saved in this browser only. Start the app with “Start Ledgerlight.command” to use the database file.'}"><span class="dot"></span><span>${S.mode === 'server' ? 'Saving to local database' : 'Browser storage mode'}</span></div>
+        <div class="mode-chip ${S.mode}" title="${S.mode === 'server' ? 'Saved to data/finance.db on this computer' : (S.hosted() ? 'Saved in this browser on this device only. Export a .json backup from Import & export to keep a copy.' : 'Saved in this browser only. Start the app with “Start Ledgerlight.command” to use the database file.')}"><span class="dot"></span><span>${S.mode === 'server' ? 'Saving to local database' : 'Browser storage mode'}</span></div>
         <button class="btn ghost sm collapse-btn" id="collapse" title="Collapse panel">${I('menu', 16)}<span class="brand-text">Collapse panel</span></button>
       </div>`;
     U.$$('.nav', rail).forEach((n) => n.prepend(U.h('<span class="nav-pill" style="opacity:0"></span>')));

@@ -28,6 +28,16 @@ The first time macOS may say the file is from an unidentified developer. Right-c
 
 If the server is not running and you open `public/app.html` directly, the app still works but keeps data in the browser instead of the database file.
 
+## Host it on Hostinger
+
+Shared web hosting can't run `server.py`, so the hosted site runs in **browser storage mode**. Each visitor's data is saved in their own browser on that device. Nothing is uploaded, and it doesn't sync between devices. Use *Import & export → Download backup* to keep a copy.
+
+1. In hPanel open **Websites → Manage → Advanced → GIT**.
+2. Repository `https://github.com/MysticalMayfly/Ledger-Light.git`, branch `main`, and leave the install path empty to deploy to `public_html` (that folder must be empty first).
+3. Click **Create**, then **Deploy**. To redeploy on every push, turn on **Auto Deployment** and add the webhook URL it shows under the GitHub repo's *Settings → Webhooks*.
+
+The `.htaccess` at the top of the repo serves the site from `public/` and blocks the local-only files (`data/`, `server.py`, the launcher).
+
 ## Files
 
 ```

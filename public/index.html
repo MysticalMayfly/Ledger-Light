@@ -243,8 +243,8 @@
     U.$('#numbers').innerHTML = items.map(([n, l]) => `<div class="card reveal tilt"><div class="n" data-count="${n}" data-kind="num">${n}</div><div class="l">${l}</div></div>`).join('');
     U.countUp(U.$('#numbers')); U.tilt(document);
     U.$('#data-note').textContent = S.state.meta.isSample ? 'You are seeing the sample household. Remove it any time to start fresh.' : 'These numbers come from your own data.';
-    U.$('#mode-line').innerHTML = `<span class="mode-chip ${S.mode}" style="padding:4px 10px"><span class="dot"></span>${S.mode === 'server' ? 'Saving to data/finance.db' : 'Browser storage (server not running)'}</span>`;
-    U.$('#foot-db').textContent = S.mode === 'server' ? 'Database: data/finance.db' : 'Start “Start Ledgerlight.command” to use the database file';
+    U.$('#mode-line').innerHTML = `<span class="mode-chip ${S.mode}" style="padding:4px 10px"><span class="dot"></span>${S.mode === 'server' ? 'Saving to data/finance.db' : (S.hosted() ? 'Saved in this browser' : 'Browser storage (server not running)')}</span>`;
+    U.$('#foot-db').textContent = S.mode === 'server' ? 'Database: data/finance.db' : (S.hosted() ? 'Your data stays in this browser and is never uploaded' : 'Start “Start Ledgerlight.command” to use the database file');
   };
   const freshen = async () => { if (await U.confirm('Start with empty data?', 'This removes the sample household. Default categories stay. ' + (S.mode === 'server' ? 'A backup of the database is saved first.' : ''), 'Remove sample data')) { await S.clearAll(); U.toast('Sample data removed'); fill(); } };
   U.$('#cta-fresh').onclick = freshen; U.$('#fresh2').onclick = freshen;

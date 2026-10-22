@@ -10,6 +10,8 @@ window.LL = window.LL || {};
 
   const S = (LL.S = { state: null, mode: 'local', v: 0, listeners: [], dirty: new Set(), saving: false });
   S.COLS = COLS;
+  /* true when served from a website (e.g. Hostinger) rather than the local server or a file on disk */
+  S.hosted = () => S.mode === 'local' && /^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
 
   /* ---------- persistence ---------- */
   S.init = async function () {

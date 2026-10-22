@@ -1,0 +1,4 @@
+# Your local database and backups. Keep these out of git: this repository is public.
+data/
+.DS_Store
+__pycache__/
