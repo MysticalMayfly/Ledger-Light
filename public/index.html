@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ledgerlight</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e9b44c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19V5M4 19h16M8 15l4-5 3 3 5-7'/%3E%3C/svg%3E">
+<script>try{var t=localStorage.getItem('ll_theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  /* Home: one full-bleed hero with a live ledger canvas, then the tool atlas. */
+  body { overflow-x: hidden; }
+  .wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .nav-top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; backdrop-filter: blur(14px); background: color-mix(in srgb, var(--bg) 70%, transparent); border-bottom: 1px solid var(--line); }
+  .nav-top .wrap { display: flex; align-items: center; gap: 14px; height: 64px; }
+  .nav-top .brand { padding: 0; }
+  .nav-top .links { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+  .nav-top .links a.lnk { color: var(--ink-2); font-weight: 650; font-size: 13.5px; padding: 8px 12px; border-radius: 10px; }
+  .nav-top .links a.lnk:hover { color: var(--ink); background: var(--surface-2); }
+  @media (max-width: 720px) { .nav-top .links a.lnk { display: none; } }
+
+  .hero { position: relative; padding-block: clamp(40px, 7vw, 90px) 40px; overflow: hidden; }
+  #ledger { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: .9; }
+  .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+  @media (max-width: 960px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); } }
+  .kicker { display: inline-flex; gap: 8px; align-items: center; padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); font-size: 12.5px; font-weight: 650; color: var(--ink-2); animation: rise .8s var(--ease) both; }
+  .kicker b { background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 3px 9px; font-size: 11px; }
+  .hero h1 { font: 800 clamp(42px, 7.2vw, 96px)/0.94 var(--f-display); letter-spacing: -0.045em; margin: 22px 0 18px; }
+  .hero h1 .line { display: block; overflow: hidden; padding-bottom: .06em; }
+  .hero h1 .line span { display: inline-block; animation: wordUp 1s var(--ease) both; }
+  .hero h1 .line:nth-child(2) span { animation-delay: .12s; }
+  .hero h1 .line:nth-child(3) span { animation-delay: .24s; }
+  @keyframes wordUp { from { transform: translateY(105%) rotate(4deg); } }
+  .hero h1 em { font-style: normal; background: linear-gradient(100deg, var(--accent), var(--accent-2) 40%, var(--s1) 80%); -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 200% 100%; animation: wordUp 1s .24s var(--ease) both, sheen 6s 1.2s ease-in-out infinite alternate; }
+  @keyframes sheen { to { background-position: 100% 0; } }
+  .lede { font-size: clamp(15px, 1.5vw, 18px); color: var(--ink-2); max-width: 54ch; line-height: 1.6; animation: rise .9s .35s var(--ease) both; }
+  .cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; animation: rise .9s .5s var(--ease) both; }
+  .cta .btn { height: 48px; padding: 0 20px; font-size: 14.5px; border-radius: 14px; }
+  .trust { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 22px; color: var(--ink-3); font-size: 12.5px; animation: rise .9s .65s var(--ease) both; }
+  .trust span { display: inline-flex; gap: 6px; align-items: center; }
+
+  .stage { position: relative; height: 520px; perspective: 1200px; animation: rise 1s .3s var(--ease) both; }
+  @media (max-width: 960px) { .stage { height: 460px; } }
+  @media (max-width: 520px) { .stage { height: 420px; } }
+  .float { position: absolute; background: color-mix(in srgb, var(--surface) 90%, transparent); backdrop-filter: blur(12px); border: 1px solid var(--line-2); border-radius: 18px; padding: 16px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.65); transform-style: preserve-3d; transition: transform .2s ease-out; }
+  .float .eyebrow { margin-bottom: 8px; }
+  .f1 { left: 4%; top: 4%; width: min(360px, 78%); animation: bob 7s ease-in-out infinite; }
+  .f2 { right: 0; top: 34%; width: min(300px, 64%); animation: bob 8s -2s ease-in-out infinite; }
+  .f3 { left: 10%; bottom: 2%; width: min(280px, 60%); animation: bob 9s -4s ease-in-out infinite; }
+  .f4 { right: 8%; top: 2%; width: 150px; animation: bob 6s -1s ease-in-out infinite; }
+  @media (max-width: 520px) { .f4 { display: none; } .f2 { top: 38%; } }
+  @keyframes bob { 50% { translate: 0 -12px; } }
+  .big-n { font: 800 clamp(28px, 3.4vw, 40px)/1 var(--f-display); letter-spacing: -0.04em; }
+  .mini-bars { display: flex; gap: 5px; align-items: end; height: 70px; margin-top: 12px; }
+  .mini-bars i { flex: 1; border-radius: 4px 4px 2px 2px; background: var(--s1); transform-origin: bottom; animation: growUp 1s var(--ease) both; }
+  .mini-bars i:nth-child(odd) { background: var(--s3); }
+  .orbit { position: absolute; inset: 22% 18%; border: 1px dashed var(--line-2); border-radius: 50%; animation: spin 40s linear infinite; }
+  .orbit::after { content: ''; position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 20px var(--accent); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .strip { border-block: 1px solid var(--line); background: var(--bg-2); overflow: hidden; }
+  .strip .track { display: flex; gap: 46px; width: max-content; padding-block: 16px; animation: marquee 40s linear infinite; }
+  .strip span { font: 700 clamp(18px, 2.4vw, 28px)/1 var(--f-display); letter-spacing: -0.02em; color: var(--ink-3); white-space: nowrap; display: inline-flex; gap: 14px; align-items: center; }
+  .strip span::after { content: '✦'; color: var(--accent); font-size: .6em; }
+
+  .sec { padding-block: clamp(50px, 8vw, 96px); }
+  .sec-h { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+  .sec-h h2 { font-size: clamp(28px, 4vw, 46px); line-height: 1.02; letter-spacing: -0.035em; max-width: 18ch; }
+  .sec-h p { color: var(--ink-2); max-width: 46ch; margin: 0; }
+  .numbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 820px) { .numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .numbers .card { padding: 20px; }
+  .numbers .n { font: 800 clamp(26px, 3.4vw, 40px)/1 var(--f-display); letter-spacing: -0.04em; }
+  .numbers .l { color: var(--ink-3); font-size: 12.5px; margin-top: 8px; font-weight: 600; }
+
+  .atlas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px; }
+  .tool { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; align-items: start; padding: 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); transition: transform .35s var(--spring), border-color .25s, background .25s; position: relative; overflow: hidden; }
+  .tool:hover { transform: translateY(-4px); border-color: var(--accent); }
+  .tool::after { content: ''; position: absolute; inset: auto -40% -60% auto; width: 140px; height: 140px; border-radius: 50%; background: var(--accent); opacity: 0; filter: blur(40px); transition: opacity .3s; }
+  .tool:hover::after { opacity: .22; }
+  .tool .ti { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); transition: transform .4s var(--spring); }
+  .tool:hover .ti { transform: rotate(-10deg) scale(1.1); }
+  .tool b { display: block; font-size: 14.5px; }
+  .tool small { color: var(--ink-3); font-size: 12.5px; line-height: 1.45; display: block; margin-top: 3px; }
+  .tool .grp { font: 700 10px/1 var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; display: block; }
+
+  .start { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 900px) { .start { grid-template-columns: minmax(0, 1fr); } }
+  .start .card { display: grid; gap: 10px; padding: 22px; }
+  .start .card h3 { font-size: 20px; }
+  .start .step { font: 700 11px var(--f-mono); color: var(--accent); }
+  .reveal { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+  @supports not (animation-timeline: view()) { .reveal { animation: none; } }
+  footer { border-top: 1px solid var(--line); padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px)); color: var(--ink-3); font-size: 12.5px; }
+  footer .wrap { display: flex; gap: 14px; justify-content: space-between; flex-wrap: wrap; }
+  .status-line { display: inline-flex; gap: 8px; align-items: center; }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav-top"><div class="wrap">
+  <a class="brand" href="index.html"><span class="brand-mark" id="logo"></span><span><b>Ledgerlight</b><small>Personal finance</small></span></a>
+  <div class="links">
+    <a class="lnk" href="#tools">Tools</a><a class="lnk" href="#start">Get started</a>
+    <button class="icon-btn" id="theme" aria-label="Switch theme"></button>
+    <a class="btn primary" href="app.html#dashboard">Open dashboard</a>
+  </div>
+</div></header>
+
+<section class="hero">
+  <canvas id="ledger" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div>
+      <span class="kicker"><b>Private</b>Runs on your computer. Your data never leaves it.</span>
+      <h1><span class="line"><span>Every rupee,</span></span><span class="line"><span>in plain</span></span><span class="line"><span><em>daylight.</em></span></span></h1>
+      <p class="lede">Ledgerlight brings your accounts, budgets, bills, goals, loans, investments and taxes into one place, then runs <b id="n-analyses">32</b> pattern analyses to show you how you actually spend.</p>
+      <div class="cta">
+        <a class="btn primary" href="app.html#dashboard" id="cta-open">Open the dashboard →</a>
+        <a class="btn" href="app.html#data">Import my bank CSV</a>
+        <button class="btn ghost" id="cta-fresh">Start with empty data</button>
+      </div>
+      <div class="trust"><span id="mode-line" class="status-line"><span class="pulse-dot"></span>Checking storage…</span><span>No accounts, no cloud, no ads</span><span>Works offline</span></div>
+    </div>
+    <div class="stage" id="stage">
+      <div class="orbit"></div>
+      <div class="float f1" data-depth="18"><div class="eyebrow">Net worth</div><div class="big-n" id="h-nw">—</div><div class="kbd-hint" id="h-nw-d"></div><div id="h-spark" style="margin-top:8px"></div></div>
+      <div class="float f2" data-depth="30"><div class="eyebrow">Income vs spending · 8 months</div><div class="mini-bars" id="h-bars"></div></div>
+      <div class="float f3" data-depth="24"><div class="eyebrow">Health score</div><div style="display:flex;gap:14px;align-items:center"><div id="h-ring"></div><div><div class="big-n" id="h-score">—</div><div class="kbd-hint" id="h-label"></div></div></div></div>
+      <div class="float f4" data-depth="40"><div class="eyebrow">Safe to spend</div><div style="font:700 18px var(--f-display)" id="h-safe">—</div><div class="kbd-hint">per day</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="strip" aria-hidden="true"><div class="track" id="strip"></div></div>
+
+<section class="sec"><div class="wrap">
+  <div class="sec-h reveal"><h2>What your ledger holds right now</h2><p id="data-note">These numbers come straight from the database on this computer.</p></div>
+  <div class="numbers" id="numbers"></div>
+</div></section>
+
+<section class="sec" id="tools" style="padding-top:0"><div class="wrap">
+  <div class="sec-h reveal"><h2>Every tool, one click away</h2><p>The left panel in the app holds all of these. Jump straight into any of them.</p></div>
+  <div class="atlas" id="atlas"></div>
+</div></section>
+
+<section class="sec" id="start" style="padding-top:0"><div class="wrap">
+  <div class="sec-h reveal"><h2>Three ways to begin</h2><p>Switch at any time from Import &amp; export in the app.</p></div>
+  <div class="start">
+    <div class="card reveal"><span class="step">OPTION 1</span><h3>Explore the sample</h3><p class="muted-p">A fictional household with two years of salary, EMIs, SIPs, trips and festive spending, so every chart has something to show.</p><div class="toolbar"><a class="btn primary" href="app.html#dashboard">Explore sample</a><button class="btn ghost" id="reload-sample">Reset sample</button></div></div>
+    <div class="card reveal"><span class="step">OPTION 2</span><h3>Import your statements</h3><p class="muted-p">Export a CSV from your bank or card, drop it in, check the column mapping and you are done. Rules sort payees into categories.</p><div class="toolbar"><a class="btn primary" href="app.html#data">Import a CSV</a></div></div>
+    <div class="card reveal"><span class="step">OPTION 3</span><h3>Start from zero</h3><p class="muted-p">Remove the sample and add accounts and transactions by hand. Press <b class="mono">N</b> anywhere in the app to add one.</p><div class="toolbar"><button class="btn primary" id="fresh2">Remove sample data</button></div></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap"><span>Ledgerlight · a private, local-first money manager</span><span id="foot-db"></span></div></footer>
+
+<script src="js/util.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/sample.js"></script>
+<script src="js/store.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/app.js"></script>
+<script src="js/views-overview.js"></script>
+<script>
+(function () {
+  const U = LL.U, S = LL.S, C = LL.C, I = LL.I, A = LL.A;
+  U.$('#logo').innerHTML = I('logo', 20);
+  const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : !matchMedia('(prefers-color-scheme: light)').matches; };
+  const setThemeIcon = () => (U.$('#theme').innerHTML = I(isDark() ? 'sun' : 'moon'));
+  setThemeIcon();
+  U.$('#theme').onclick = () => { const n = isDark() ? 'light' : 'dark'; document.documentElement.dataset.theme = n; try { localStorage.setItem('ll_theme', n); } catch (e) {} setThemeIcon(); };
+
+  const DESC = {
+    dashboard: 'Net worth, safe-to-spend, budgets, bills and insights on one screen', networth: 'Assets vs liabilities over time, with what drove the change', cashflow: 'A Sankey of where income goes, savings rate and net flow',
+    accounts: 'Banks, cards, cash, investments and property, with reconciliation', transactions: 'Search, filter, bulk-edit and export every entry', budgets: 'Category, 50/30/20 and envelope budgeting with pace markers',
+    bills: 'Due dates, autopay, price rises, trials and detected subscriptions', calendar: 'A month grid of bills, paydays and daily spending', goals: 'Targets with required monthly saving and what-if sliders',
+    debts: 'Amortisation, avalanche vs snowball payoff planner and IOUs', investments: 'Holdings, XIRR, allocation and rebalancing suggestions', forecast: '90-day cash forecast and a 24-month scenario planner',
+    reports: 'Build any report by category, payee, tag, weekday or hour', lab: '32 deep analyses of timing, habits, trends and anomalies', health: 'A 0–100 score from six signals, with next steps',
+    taxes: 'FY totals, 80C/80D tracking, old vs new regime estimate', tools: 'EMI, SIP, FIRE, inflation, rent-vs-buy and more', categories: 'Categories, auto-sorting rules and payee merging',
+    data: 'CSV import wizard, backups, restore and exports', settings: 'Currency, financial year, theme and privacy',
+  };
+  U.$('#atlas').innerHTML = LL.NAV.flatMap((g) => g.items.map(([id, name, ico]) => `<a class="tool reveal" href="app.html#${id}"><span class="ti">${I(ico, 20)}</span><span><span class="grp">${g.label}</span><b>${name}</b><small>${DESC[id] || ''}</small></span></a>`)).join('');
+  const words = ['Budgets', 'Net worth', 'Cash flow Sankey', 'Pattern lab', 'Debt payoff', 'XIRR', 'Subscriptions', 'Tax regimes', 'Scenarios', 'Health score', 'Calendar', 'CSV import'];
+  U.$('#strip').innerHTML = [...words, ...words].map((w) => `<span>${w}</span>`).join('');
+
+  /* ledger canvas: drifting rule lines with travelling price ticks */
+  const cv = U.$('#ledger'), ctx = cv.getContext('2d');
+  let W, H, t = 0, mouse = { x: .7, y: .4 };
+  const resize = () => { const r = cv.getBoundingClientRect(); W = cv.width = r.width * devicePixelRatio; H = cv.height = r.height * devicePixelRatio; };
+  resize(); addEventListener('resize', resize);
+  addEventListener('pointermove', (e) => { mouse.x = e.clientX / innerWidth; mouse.y = e.clientY / innerHeight; });
+  const lines = [...Array(9)].map((_, i) => ({ y: (i + 1) / 10, amp: 0.012 + Math.random() * 0.03, sp: 0.2 + Math.random() * 0.5, ph: Math.random() * 6, hue: i % 3 }));
+  const draw = () => {
+    const cs = getComputedStyle(document.documentElement);
+    const cols = [cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--s1').trim(), cs.getPropertyValue('--s3').trim()];
+    ctx.clearRect(0, 0, W, H);
+    lines.forEach((l, i) => {
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 8 * devicePixelRatio) {
+        const nx = x / W;
+        const y = (l.y + Math.sin(nx * 6 + t * l.sp + l.ph) * l.amp + Math.sin(nx * 17 + t * l.sp * 1.7) * l.amp * 0.3 + (mouse.y - 0.5) * 0.04 * (i / 9)) * H;
+        x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.strokeStyle = cols[l.hue]; ctx.globalAlpha = 0.09 + (i % 3) * 0.03; ctx.lineWidth = devicePixelRatio; ctx.stroke();
+      const px = ((t * 40 * l.sp + i * 180) % (W / devicePixelRatio + 200) - 100) * devicePixelRatio;
+      const py = (l.y + Math.sin((px / W) * 6 + t * l.sp + l.ph) * l.amp + Math.sin((px / W) * 17 + t * l.sp * 1.7) * l.amp * 0.3 + (mouse.y - 0.5) * 0.04 * (i / 9)) * H;
+      ctx.globalAlpha = 0.85; ctx.fillStyle = cols[l.hue]; ctx.beginPath(); ctx.arc(px, py, 2.6 * devicePixelRatio, 0, 7); ctx.fill();
+      ctx.globalAlpha = 0.18; ctx.beginPath(); ctx.arc(px, py, 9 * devicePixelRatio, 0, 7); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    t += 0.008;
+    if (!U.reduced) requestAnimationFrame(draw);
+  };
+  draw();
+
+  /* parallax for the floating cards */
+  const stage = U.$('#stage');
+  if (!U.reduced) stage.addEventListener('pointermove', (e) => { const r = stage.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; U.$$('.float', stage).forEach((f) => { const d = +f.dataset.depth; f.style.transform = `translate3d(${x * d}px, ${y * d}px, 0) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`; }); });
+  stage.addEventListener('pointerleave', () => U.$$('.float', stage).forEach((f) => (f.style.transform = '')));
+
+  const fill = () => {
+    const nws = S.netWorthSeries(); const nw = nws[nws.length - 1] || { net: 0 }, nwp = nws[Math.max(0, nws.length - 13)] || nw;
+    U.tween(1400, (k) => (U.$('#h-nw').textContent = U.short(nw.net * k)));
+    U.$('#h-nw-d').innerHTML = nwp.net ? `<span class="${nw.net >= nwp.net ? 'up' : 'down'}">${U.money(nw.net - nwp.net, { sign: true })}</span> in 12 months` : 'Add data to see your trend';
+    U.$('#h-spark').innerHTML = C.spark(nws.slice(-18).map((x) => x.net), { w: 320, h: 60, color: 'var(--accent)' });
+    const ms = S.months(8); const mx = Math.max(1, ...ms.flatMap((m) => [S.month(m).income, S.month(m).expense]));
+    U.$('#h-bars').innerHTML = ms.flatMap((m, i) => [`<i style="height:${(S.month(m).income / mx) * 100}%;animation-delay:${i * 80}ms" title="${U.monLabel(m)} income"></i>`, `<i style="height:${(S.month(m).expense / mx) * 100}%;background:var(--s2);animation-delay:${i * 80 + 40}ms" title="${U.monLabel(m)} spending"></i>`]).join('');
+    const h = S.state.transactions.length > 20 ? A.health() : { score: 0, label: 'Needs data' };
+    U.$('#h-ring').innerHTML = C.ring(h.score / 100, { size: 74, sw: 9, color: 'var(--good)' });
+    U.tween(1400, (k) => (U.$('#h-score').textContent = Math.round(h.score * k)));
+    U.$('#h-label').textContent = h.label;
+    try { U.$('#h-safe').textContent = U.money(LL.safeToSpend ? LL.safeToSpend().perDay : 0); } catch (e) {}
+    const an = S.state.transactions.length > 20 ? A.all().length : 0;
+    U.$('#n-analyses').textContent = A.defs.length;
+    const items = [[S.state.transactions.length, 'transactions tracked'], [S.state.accounts.filter((a) => !a.archived).length, 'accounts & assets'], [S.state.bills.filter((b) => b.active).length, 'bills & subscriptions'], [an, 'pattern analyses ready']];
+    U.$('#numbers').innerHTML = items.map(([n, l]) => `<div class="card reveal tilt"><div class="n" data-count="${n}" data-kind="num">${n}</div><div class="l">${l}</div></div>`).join('');
+    U.countUp(U.$('#numbers')); U.tilt(document);
+    U.$('#data-note').textContent = S.state.meta.isSample ? 'You are seeing the sample household. Remove it any time to start fresh.' : 'These numbers come from your own data.';
+    U.$('#mode-line').innerHTML = `<span class="mode-chip ${S.mode}" style="padding:4px 10px"><span class="dot"></span>${S.mode === 'server' ? 'Saving to data/finance.db' : 'Browser storage (server not running)'}</span>`;
+    U.$('#foot-db').textContent = S.mode === 'server' ? 'Database: data/finance.db' : 'Start “Start Ledgerlight.command” to use the database file';
+  };
+  const freshen = async () => { if (await U.confirm('Start with empty data?', 'This removes the sample household. Default categories stay. ' + (S.mode === 'server' ? 'A backup of the database is saved first.' : ''), 'Remove sample data')) { await S.clearAll(); U.toast('Sample data removed'); fill(); } };
+  U.$('#cta-fresh').onclick = freshen; U.$('#fresh2').onclick = freshen;
+  U.$('#reload-sample').onclick = async () => { await S.loadSample(); U.toast('Sample household reset'); fill(); };
+  S.init().then(fill);
+})();
+</script>
+</body>
+</html>

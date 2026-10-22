@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ledgerlight</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e9b44c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19V5M4 19h16M8 15l4-5 3 3 5-7'/%3E%3C/svg%3E">
+<script>try{var t=localStorage.getItem('ll_theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="shell" id="shell">
+  <aside class="rail" id="rail" aria-label="Tools"></aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="view" tabindex="-1">
+      <div class="empty"><div class="em-ico"></div><h3>Loading your ledger…</h3></div>
+    </main>
+  </div>
+</div>
+<button class="fab" id="fab" aria-label="Add a transaction"></button>
+<input type="file" id="filepick" hidden>
+
+<script src="js/util.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/sample.js"></script>
+<script src="js/store.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/app.js"></script>
+<script src="js/views-overview.js"></script>
+<script src="js/views-money.js"></script>
+<script src="js/views-plan.js"></script>
+<script src="js/views-insight.js"></script>
+<script src="js/views-tools.js"></script>
+<script>LL.boot();</script>
+</body>
+</html>
